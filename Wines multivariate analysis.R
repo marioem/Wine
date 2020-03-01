@@ -9,7 +9,7 @@ V2stats <- wine %>%
     mutate(mean = mean(V2)) %>% 
     group_by(mean, V1) %>% 
     select(mean, V1, V2) %>% 
-    summarise(V2grpmean = mean(V2), V2grpvar = var(V2), n = n())
+    dplyr::summarise(V2grpmean = mean(V2), V2grpvar = var(V2), n = n())
 
 V2withinvar <- anova(lm(V2~V1, data = wine))[2,3]
 # or sum(V2stats$V2grpvar * (V2stats$n - 1)) / (sum(V2stats$n) - nrow(V2stats))
@@ -18,11 +18,12 @@ V2betweenvar <- sum((V2stats$V2grpmean - V2stats$mean)^2 * V2stats$n) / (nrow(V2
 # or anova(lm(V2~V1, data = wine))[1,3]
 
 winestd <- wine %>% 
-    mutate_at(vars(V2:V14), scale)
+    mutate_at(vars(V2:V14), base::scale)
 
 winepca <- prcomp(winestd[2:14])
+winepccomp <- cbind(winepca$x, wine$V1)
+winepccomp <- as.data.frame(winepccomp)
 
-winepccomp %>% ggplot(aes(x = PC1, y = PC2, col = V14)) + geom_point()
 winepccomp %>% ggplot(aes(x = PC1, y = PC2, col = as.factor(V14))) + geom_point()
 winepccomp %>% ggplot(aes(x = PC3, y = PC2, col = as.factor(V14))) + geom_point()
 winepccomp %>% ggplot(aes(x = PC3, y = PC4, col = as.factor(V14))) + geom_point()
@@ -56,3 +57,4 @@ kmeans %>%
     augment(wine.lda.values$x) %>% 
     ggplot(aes(LD1, LD2, color = .cluster)) + geom_point(aes(shape = class)) +
     scale_color_discrete(name = "Cluster")
+
