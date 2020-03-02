@@ -1,6 +1,5 @@
 ##################################### PCA #######################################################
 #
-#                        PCA
 #
 # http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/112-pca-principal-component-analysis-essentials/#pca-data-format
 #
@@ -319,7 +318,7 @@ fviz_pca_biplot(wine.pca,
 # And wines from cluster 2 have highest values of variables from cluster 2 and at the same
 # time the lowest values of variables from cluster 1
 
-wine.clust <- augment(wine, res.km.ind)
+wine.clust <- res.km.ind %>% augment(wine)
 
 wine.clust %>% group_by(.cluster) %>% dplyr::summarise(mean(Alcohol))
 wine.clust %>% group_by(.cluster) %>% dplyr::summarise(mean(Mg))
