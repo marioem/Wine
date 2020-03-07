@@ -96,6 +96,7 @@ fviz_pca_ind(wine.pca,
 fviz_contrib(wine.pca, choice = "ind", axes = 1:2)
 
 set.seed(123)
+# k-means on all 13 dimensions
 res.km.ind <- kmeans(wine.ind$coord, centers = 3, nstart = 25)
 groups <- as.factor(res.km.ind$cluster)
 fviz_pca_ind(wine.pca,
@@ -249,6 +250,7 @@ fviz_pca_var(wine.pca, col.var = "contrib",
 # Create a grouping variable using kmeans
 # Create 3 groups of variables (centers = 3)
 set.seed(123)
+# clustering on all 13 dimensions
 res.km <- kmeans(wine.var$coord, centers = 3, nstart = 25)
 grp <- as.factor(res.km$cluster)
 # Color variables by groups
@@ -311,7 +313,7 @@ fviz_pca_biplot(wine.pca,
                                     color = "Var cluster"),
                 repel = TRUE        # Avoid label overplotting
 ) + ggpubr::fill_palette("jco") +   # Indiviual fill color
-    ggpubr::color_palette("npg")    # Variable colors
+    ggpubr::color_palette("jco")    # Variable colors # was "npg"
 
 # Wines in cluster 3 are characterized by the lowest values of variables in var cluster 3
 # Likewise wines from cluster 1 have highest values of variables from var cluster 1
@@ -324,6 +326,62 @@ wine.clust %>% group_by(.cluster) %>% dplyr::summarise(mean(Alcohol))
 wine.clust %>% group_by(.cluster) %>% dplyr::summarise(mean(Mg))
 wine.clust %>% group_by(.cluster) %>% dplyr::summarise(mean(Proline))
 wine.clust %>% group_by(.cluster) %>% dplyr::summarise(mean(Color))
+
+wine.var.clust <- wine.clust %>% 
+    gather(key = "Metric", value = "value", -.cluster) %>% 
+    left_join(data_frame(Metric = names(res.km$cluster), VarCluster = res.km$cluster)) %>% 
+    mutate(Metric = factor(Metric))
+
+library(RColorBrewer)
+colset <- brewer.pal(range(wine.var.clust$VarCluster)[2], "Dark2")
+
+col <- colset[wine.var.clust %>% 
+                  select(Metric, VarCluster) %>%  
+                  group_by(Metric) %>% 
+                  dplyr::summarise(col = first(VarCluster)) %>% 
+                  arrange(col) %>% 
+                  select(col) %>% 
+                  unlist()]
+
+wine.var.clust %>% 
+    group_by(Metric, .cluster) %>%
+    dplyr::summarise(avgValue = mean(value)) %>% 
+    ungroup() %>% 
+    # rejoin VarCluster, needed for reordering of metrics
+    left_join(wine.var.clust %>% select(Metric, VarCluster) %>%  group_by(Metric) %>% dplyr::summarise(VarCluster = first(VarCluster))) %>% 
+    arrange(Metric, avgValue) %>% 
+    group_by(Metric) %>% 
+    dplyr::mutate(rank = rank(avgValue, ties.method = "average")) %>%   # rank wine clusters by their average value of a metric, within each metric
+    ggplot(aes(x = reorder(Metric, VarCluster), y = rank, color = .cluster, group = .cluster)) +
+    geom_line(size = 2) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, color = col)) +
+    ggtitle("Rank of average value of a metric for wine clusters") +
+    scale_y_continuous(breaks=c(1,2,3)) +
+    scale_color_discrete(name = "Wine\ncluster") +
+    xlab("Metric")
+    
+# The following chart reveals principal differencies between groups of wines, uncovered
+# by PCA analysis.
+# Wines in cluster 1 have the highest average value of metrics from metrics cluster 1 and the lowest
+# from metrics cluster 2.
+# Wines in cluster 2 have the highest average value of metrics from metrics cluster 2 and 3 and the lowest
+# from metrics cluster 1.
+# Wines in cluster 3 have the lowest average metric from metrics cluster 3.
+
+wine.var.clust %>% 
+    group_by(VarCluster, .cluster) %>%
+    dplyr::summarise(avgValue = mean(value)) %>% 
+    ungroup() %>% 
+    group_by(VarCluster) %>% 
+    dplyr::mutate(rank = rank(avgValue, ties.method = "average")) %>%   # rank wine clusters by their average value of all metrics in a cluster, within each metric cluster 
+    ggplot(aes(x = VarCluster, y = rank, color = .cluster, group = .cluster)) +
+    geom_line(size = 2) +
+    scale_x_continuous(breaks=c(1,2,3)) +
+    scale_y_continuous(breaks=c(1,2,3)) +
+    scale_color_discrete(name = "Wine\ncluster") +
+    xlab("Metrics cluster") +
+    ggtitle("Rank of average value of a metric within metric cluster for wine clusters")
+
 
 # More complex biplot formatting example
 
@@ -388,7 +446,7 @@ contrib <- function(var.cos2, comp.cos2) {
 var.contrib <- t(apply(var.cos2,1, contrib, comp.cos2))
 var.contrib
 range(wine.pca$rotation)
-
+0
 # Coordinates of individuals
 #::::::::::::::::::::::::::::::::::
 #
