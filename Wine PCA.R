@@ -352,13 +352,14 @@ wine.var.clust %>%
     arrange(Metric, avgValue) %>% 
     group_by(Metric) %>% 
     dplyr::mutate(rank = rank(avgValue, ties.method = "average")) %>%   # rank wine clusters by their average value of a metric, within each metric
-    ggplot(aes(x = reorder(Metric, VarCluster), y = rank, color = .cluster, group = .cluster)) +
+    ggplot(aes(x = reorder(Metric, VarCluster), y = factor(rank), color = .cluster, group = .cluster)) +
     geom_line(size = 2) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, color = col)) +
-    ggtitle("Rank of average value of a metric for wine clusters") +
-    scale_y_continuous(breaks=c(1,2,3)) +
+    ggtitle("Average value of a metric for wine clusters") +
+    scale_y_discrete(labels = c("Lowest","Medium","Highest")) +
     scale_color_discrete(name = "Wine\ncluster") +
-    xlab("Metric")
+    xlab("Metric") +
+    ylab("")
     
 # The following chart reveals principal differencies between groups of wines, uncovered
 # by PCA analysis.
@@ -374,13 +375,14 @@ wine.var.clust %>%
     ungroup() %>% 
     group_by(VarCluster) %>% 
     dplyr::mutate(rank = rank(avgValue, ties.method = "average")) %>%   # rank wine clusters by their average value of all metrics in a cluster, within each metric cluster 
-    ggplot(aes(x = VarCluster, y = rank, color = .cluster, group = .cluster)) +
+    ggplot(aes(x = VarCluster, y = factor(rank), color = .cluster, group = .cluster)) +
     geom_line(size = 2) +
     scale_x_continuous(breaks=c(1,2,3)) +
-    scale_y_continuous(breaks=c(1,2,3)) +
+    scale_y_discrete(labels = c("Lowest","Medium","Highest")) +
     scale_color_discrete(name = "Wine\ncluster") +
     xlab("Metrics cluster") +
-    ggtitle("Rank of average value of a metric within metric cluster for wine clusters")
+    ylab("") + 
+    ggtitle("Average value of a metric within metric cluster for wine clusters")
 
 
 # More complex biplot formatting example
