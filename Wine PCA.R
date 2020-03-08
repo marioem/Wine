@@ -52,6 +52,9 @@ eig.val
 fviz_eig(wine.pca, choice = "eigenvalue", addlabels = TRUE)
 fviz_eig(wine.pca, choice = "variance", addlabels = TRUE) #default
 
+# Variance explained manually
+wine.pca$sdev^2/nrow(wine.pca$rotation)
+
 ##################################### IND #######################################################
 #
 # Results for individuals
@@ -421,18 +424,20 @@ wine.var.clust %>%
 
 
 # From http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/118-principal-component-analysis-in-r-prcomp-vs-princomp/
+# Above article incorrectly calls eigenvectors (rotation) - loadings. Loadings are eigenvevtors scaled by standard dev on their directions
+# see: https://stats.stackexchange.com/questions/143905/loadings-vs-eigenvectors-in-pca-when-to-use-one-or-another
 
-var_coord_func <- function(loadings, comp.sdev){
-    loadings*comp.sdev
+var_coord_func <- function(rot, comp.sdev){
+    rot*comp.sdev
 }
 
 # Compute Coordinates
 #::::::::::::::::::::::::::::::::::::::::
-# var.coord = loadings * the component standard deviations
-#
-loadings <- wine.pca$rotation
+# var.coord (or loadings) = rotation (i.e.eigenvectors)  * the component standard deviations (i.e. sqrt(eigenvalues))
+# 
+rot <- wine.pca$rotation
 sdev <- wine.pca$sdev
-var.coord <- t(apply(loadings, 1, var_coord_func, sdev)) 
+var.coord <- t(apply(rot, 1, var_coord_func, sdev)) 
 var.coord
 
 # Compute Cos2
@@ -456,12 +461,17 @@ contrib <- function(var.cos2, comp.cos2) {
 var.contrib <- t(apply(var.cos2,1, contrib, comp.cos2))
 var.contrib
 range(wine.pca$rotation)
-0
+
+
+
 # Coordinates of individuals
 #::::::::::::::::::::::::::::::::::
 #
 ind.coord <- wine.pca$x
 ind.coord
+
+# Or manually
+ind.mcooord <- scale(wine) %*% wine.pca$rotation
 
 # Cos2 of individuals
 #:::::::::::::::::::::::::::::::::
