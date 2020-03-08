@@ -315,6 +315,34 @@ fviz_pca_biplot(wine.pca,
 ) + ggpubr::fill_palette("jco") +   # Indiviual fill color
     ggpubr::color_palette("jco")    # Variable colors # was "npg"
 
+# More complex biplot formatting example
+
+fviz_pca_biplot(wine.pca, 
+                # Individuals
+                geom.ind = "point",
+                fill.ind = groups, 
+                col.ind = "black",
+                pointshape = 21, 
+                pointsize = 2,
+                palette = "jco",
+                addEllipses = TRUE,
+                # Variables
+                alpha.var ="contrib", 
+                col.var = "contrib",
+                gradient.cols = "RdYlBu",
+                legend.title = list(fill = "Ind cluster",
+                                    color = "Contrib",
+                                    alpha = "Contrib")
+)
+
+################################## IND and VAR clusters #########################################
+#
+# Individuals clustered and vars clustered together
+# Understanding the properties of wine groups through their average values of metrics
+# individually or in metrics clusters
+#
+#************************************************************************************************
+
 # Wines in cluster 3 are characterized by the lowest values of variables in var cluster 3
 # Likewise wines from cluster 1 have highest values of variables from var cluster 1
 # And wines from cluster 2 have highest values of variables from cluster 2 and at the same
@@ -384,26 +412,6 @@ wine.var.clust %>%
     ylab("") + 
     ggtitle("Average value of a metric within metric cluster for wine clusters")
 
-
-# More complex biplot formatting example
-
-fviz_pca_biplot(wine.pca, 
-                # Individuals
-                geom.ind = "point",
-                fill.ind = groups, 
-                col.ind = "black",
-                pointshape = 21, 
-                pointsize = 2,
-                palette = "jco",
-                addEllipses = TRUE,
-                # Variables
-                alpha.var ="contrib", 
-                col.var = "contrib",
-                gradient.cols = "RdYlBu",
-                legend.title = list(fill = "Ind cluster",
-                                    color = "Contrib",
-                                    alpha = "Contrib")
-)
 
 ##################################### Manual calc ###############################################
 #
