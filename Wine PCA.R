@@ -379,7 +379,10 @@ wine.var.clust %>%
     dplyr::summarise(avgValue = mean(value)) %>% 
     ungroup() %>% 
     # rejoin VarCluster, needed for reordering of metrics
-    left_join(wine.var.clust %>% select(Metric, VarCluster) %>%  group_by(Metric) %>% dplyr::summarise(VarCluster = first(VarCluster))) %>% 
+    left_join(wine.var.clust %>% 
+                  select(Metric, VarCluster) %>% 
+                  group_by(Metric) %>% 
+                  dplyr::summarise(VarCluster = first(VarCluster))) %>% 
     arrange(Metric, avgValue) %>% 
     group_by(Metric) %>% 
     dplyr::mutate(rank = rank(avgValue, ties.method = "average")) %>%   # rank wine clusters by their average value of a metric, within each metric
@@ -392,6 +395,7 @@ wine.var.clust %>%
     xlab("Metric") +
     ylab("")
     
+
 # The following chart reveals principal differencies between groups of wines, uncovered
 # by PCA analysis.
 # Wines in cluster 1 have the highest average value of metrics from metrics cluster 1 and the lowest
@@ -414,6 +418,21 @@ wine.var.clust %>%
     xlab("Metrics cluster") +
     ylab("") + 
     ggtitle("Average value of a metric within metric cluster for wine clusters")
+
+
+################################ PCA clusters separation ########################################
+#
+# Data should be more easily separable into groups after PCA
+# It seems to be doing a good job, but LDA looks slightly better separated
+#
+#************************************************************************************************
+res.km.ind %>% augment(wine.pca$x) %>% 
+    ggplot(aes(PC1, fill = .cluster)) + geom_density(alpha = .5) +
+    labs(fill = "Cluster")
+
+res.km.ind %>% augment(wine.pca$x) %>% 
+    ggplot(aes(PC2, fill = .cluster)) + geom_density(alpha = .5) +
+    labs(fill = "Cluster")
 
 
 ##################################### Manual calc ###############################################
