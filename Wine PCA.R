@@ -17,6 +17,8 @@
 library(ggcorrplot)
 library(tidyverse)
 library(broom)
+library(devtools)
+install_github("vqv/ggbiplot")
 library(ggbiplot)
 library(factoextra)
 
@@ -367,11 +369,11 @@ library(RColorBrewer)
 colset <- brewer.pal(range(wine.var.clust$VarCluster)[2], "Dark2")
 
 col <- colset[wine.var.clust %>% 
-                  select(Metric, VarCluster) %>%  
+                  dplyr::select(Metric, VarCluster) %>%  
                   group_by(Metric) %>% 
                   dplyr::summarise(col = first(VarCluster)) %>% 
                   arrange(col) %>% 
-                  select(col) %>% 
+                  dplyr::select(col) %>% 
                   unlist()]
 
 wine.var.clust %>% 
@@ -380,7 +382,7 @@ wine.var.clust %>%
     ungroup() %>% 
     # rejoin VarCluster, needed for reordering of metrics
     left_join(wine.var.clust %>% 
-                  select(Metric, VarCluster) %>% 
+                  dplyr::select(Metric, VarCluster) %>% 
                   group_by(Metric) %>% 
                   dplyr::summarise(VarCluster = first(VarCluster))) %>% 
     arrange(Metric, avgValue) %>% 
