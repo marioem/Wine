@@ -22,7 +22,7 @@ install_github("vqv/ggbiplot")
 library(ggbiplot)
 library(factoextra)
 
-data(wine)
+data(wine) # from ggbiplot package
 
 ggcorrplot(round(cor(wine), 2), method = "circle", hc.order = TRUE)
 
@@ -221,7 +221,7 @@ fviz_cos2(wine.pca, choice = "var", axes = 1:2)
 # The cos2 values are used to estimate the quality of the representation
 # The closer a variable is to the circle of correlations, the better its representation 
 # on the factor map (and the more important it is to interpret these components)
-# Variables that are closed to the center of the plot are less important for the first components.
+# Variables that are close to the center of the plot are less important for the first components.
 
 # Color by cos2 values: quality on the factor map
 fviz_pca_var(wine.pca, 
