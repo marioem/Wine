@@ -9,6 +9,7 @@
 library(tidyverse)
 library(broom)
 library(ggbiplot)
+library(factoextra)
 
 data(wine)
 
@@ -42,6 +43,9 @@ ind.coord.svd.2 <- wine.svd$u %*% diag(wine.svd$d)
 ind.coord.svd.2
 
 identical(round(ind.coord.svd, 10), round(ind.coord.svd.2, 10)) # equivalence of the above methods
+
+wine.pca <- prcomp(wine, scale. = TRUE)
+ind.coord <- ind.coord <- wine.pca$x
 
 ind.coord.pca <- ind.coord
 dimnames(ind.coord.pca) <- NULL
@@ -78,6 +82,10 @@ var_coord_func <- function(rot, comp.sdev){
 
 wine.var.coord <- t(apply(rot.svd, 1, var_coord_func, sdev.svd)) 
 wine.var.coord
+
+rot.pca <- wine.pca$rotation
+sdev.pca <- wine.pca$sdev
+var.coord <- t(apply(rot.pca, 1, var_coord_func, sdev.pca)) 
 
 var.coord.pca <- var.coord
 dimnames(var.coord.pca) <- NULL

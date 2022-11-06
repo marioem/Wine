@@ -189,6 +189,7 @@ fviz_pca_var(wine.pca,
              repel = TRUE     # Avoid text overlapping
 )
 
+
 fviz_pca_var(wine.pca,
              axes = 2:3,
              col.var = "contrib", # Color by contributions to the PC
@@ -255,7 +256,7 @@ fviz_pca_var(wine.pca, col.var = "contrib",
 # Create a grouping variable using kmeans
 # Create 3 groups of variables (centers = 3)
 set.seed(123)
-# clustering on all 13 dimensions
+ # clustering on all 13 dimensions
 res.km <- kmeans(wine.var$coord, centers = 3, nstart = 25)
 grp <- as.factor(res.km$cluster)
 # Color variables by groups
